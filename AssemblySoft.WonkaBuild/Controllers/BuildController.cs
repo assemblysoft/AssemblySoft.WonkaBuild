@@ -112,7 +112,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
                     var path = Path.Combine(runPath, "processing.dat");
                     System.IO.File.Create(Path.Combine(runPath, "processing.dat"));
 
-                    tasksPath = Path.Combine(runPath, taskModel.Task);
+                    tasksPath = Path.Combine(runPath, taskModel.FullName);
 
                     taskRunner.Run(token, Path.Combine(tasksPath));
 
@@ -148,7 +148,8 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
             var model = new TaskInformationModel()
             {
-                TasksPath = tasksPath,
+                TaskName = taskModel.Task,
+                TasksPath = taskModel.Path,
                 TasksStartTime = startTime.ToString(),
             };
 
@@ -238,9 +239,10 @@ namespace AssemblySoft.WonkaBuild.Controllers
             }
 
             var model = new TaskInformationModel()
-            {
+            {                
                 TasksPath = tasksPath,
                 TasksStartTime = startTime.ToString(),
+
             };
 
             return PartialView("_TasksRunning", model);
@@ -403,7 +405,8 @@ namespace AssemblySoft.WonkaBuild.Controllers
                 {
                     tasks.Add(new TaskModel()
                     {
-                        Task = file.Name,
+                        Task = Path.GetFileNameWithoutExtension(file.Name),
+                        FullName = file.Name,
                         Path = dir.FullName,
                         Project = dir.Name,
                     });

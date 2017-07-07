@@ -11,6 +11,10 @@
         <th>
             @Html.DisplayNameFor(model => model.Project)
         </th>
+        <th>
+            Actions
+        </th>
+
         @*<th>
             @Html.DisplayNameFor(model => model.Version)
         </th>
@@ -20,7 +24,10 @@
         <th>
             @Html.DisplayNameFor(model => model.Definition)
         </th>*@
-        <th></th>
+        
+        <th>
+            Status
+        </th>
     </tr>
 
 @foreach (var item in Model)
@@ -32,6 +39,8 @@
         <td>
             @Html.DisplayFor(modelItem => item.Project)
         </td>
+       
+
         @*<td>
             @Html.DisplayFor(modelItem => item.Version)
         </td>
@@ -44,16 +53,27 @@
         <td>
 
             @*<a class="taskr btn btn-primary" href="#">click</a>*@
-
-
-            <a data-url='@Url.Action("Run","Build", new { Task=item.Task, Path = item.Path, /* id=item.PrimaryKey */ Project = item.Project })' class="run-task btn btn-primary" href="#">
+            
+            <a data-url='@Url.Action("Run","Build", new { Task=item.Task, Path = item.Path, /* id=item.PrimaryKey */ Project = item.Project, FullName = item.FullName })' class="run-task btn btn-primary" href="#">
                 <div><i class="fa fa-play-circle fa-2x"></i></div>
-            </a> |
+            </a> 
+            
+            <!--               
+            
+                fa-refresh fa-spin
+
                 
+                -->
+            
             <a data-url='@Url.Action("Info","Build")' class="btn btn-primary" href="#">
                 <div><i class="fa fa-info-circle fa-2x"></i></div>
             </a>            
         </td>
+
+        <td>
+            <i class="status fa fa-2x"></i>
+        </td>
+        
     </tr>
 }
 

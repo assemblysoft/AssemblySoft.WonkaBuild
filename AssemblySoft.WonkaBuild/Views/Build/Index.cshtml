@@ -37,6 +37,7 @@
                         <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
                             Console
                         </a>
+                        <a style="right:10px;" href="#" class="btn btn-primary consoleClear"><i class="fa fa-eraser" aria-hidden="true"></i></a>
                     </h4>
                 </div>
                 <div id="collapse1" class="panel-collapse collapse in">
@@ -47,43 +48,17 @@
                     </div>
                 </div>
             </div>
+            
+            
             <div class="panel panel-default">
                 <div class="panel-heading">
                     <h4 class="panel-title">
                         <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
-                            Tests
-                        </a>
-                    </h4>
-                </div>
-                <div id="collapse2" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        Test Summary
-                    </div>
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
-                            Errors and Warnings
-                        </a>
-                    </h4>
-                </div>
-                <div id="collapse3" class="panel-collapse collapse">
-                    <div class="panel-body">
-                        Error Summary
-                    </div>
-                </div>
-            </div>
-            <div class="panel panel-default">
-                <div class="panel-heading">
-                    <h4 class="panel-title">
-                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse4">
                             Build Log
                         </a>
                     </h4>
                 </div>
-                <div id="collapse4" class="panel-collapse collapse">
+                <div id="collapse2" class="panel-collapse collapse">
                     <div class="panel-body">
                         <div id="buildLogDiv">
                         </div>
@@ -119,14 +94,24 @@ function CheckStatus() {
     }
     else {
 
+        
         if (data.status == 'Completed') {
             $.get('/build/taskscomplete', function (data) {
                 $progress.replaceWith(data);
+
+                $('.active-task').removeClass('fa-refresh fa-spin active-task').addClass('fa-check');
+                $('.run-task').removeClass('disabled');              
+
+
             });
         }
         else {
             $.get('/build/tasksfail', function (data) {
                 $progress.replaceWith(data);
+
+                $('.active-task').removeClass('fa-refresh fa-spin active-task').addClass('fa-times');
+                $('.run-task').removeClass('disabled');
+
             });
         }
 
@@ -135,17 +120,11 @@ function CheckStatus() {
             $buildLog.replaceWith(data);
 
         });
-
     }
-
     };
 
-
     $.ajax(options)
-
-}
-
-
+    }
 
 </script>
 
