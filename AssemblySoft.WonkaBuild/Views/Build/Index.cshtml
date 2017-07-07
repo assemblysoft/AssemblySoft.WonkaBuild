@@ -1,0 +1,145 @@
+
+@{
+    ViewData["Title"] = "Build";
+}
+
+<div style="padding-top:20px; padding-bottom:20px;">
+    <a data-url='@Url.Action("Run","Build")' class="build-latest btn btn-primary btn-lg" href="#">
+        <div><i class="fa fa-play-circle fa-1x"></i> <strong> Build Latest </strong></div>
+    </a>
+</div>
+
+<div id="divResult">
+</div>
+
+<ul class="nav nav-tabs">
+    <li class="active"><a data-toggle="tab" href="#build">Latest Build</a></li>
+    <li><a data-toggle="tab" href="#history">History</a></li>
+    <li><a data-toggle="tab" href="#debug">Debug</a></li>    
+</ul>
+
+<div class="tab-content">
+    <div id="build" class="tab-pane fade in active">
+        <!-- Idle, Running, Complete etc.-->
+        <div id="status">
+            <h2>Status: Idle</h2>
+        </div>
+
+        <!-- - X OK-->
+        <div id="progressSpinner">
+            <div id="progressDiv">
+            </div>
+        </div>
+
+        <div class="panel-group" id="accordion">
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
+                            Console
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse1" class="panel-collapse collapse in">
+                    <div class="panel-body">
+                        <div class="console">
+                            <ul id="messages"></ul>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse2">
+                            Tests
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse2" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        Test Summary
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse3">
+                            Errors and Warnings
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse3" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        Error Summary
+                    </div>
+                </div>
+            </div>
+            <div class="panel panel-default">
+                <div class="panel-heading">
+                    <h4 class="panel-title">
+                        <a data-toggle="collapse" data-parent="#accordion" href="#collapse4">
+                            Build Log
+                        </a>
+                    </h4>
+                </div>
+                <div id="collapse4" class="panel-collapse collapse">
+                    <div class="panel-body">
+                        <div id="buildLogDiv">
+                        </div>
+
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+    <div id="history" class="tab-pane fade">
+        <div>Historic builds</div>
+    </div>
+    <div id="debug" class="tab-pane fade">
+        <div>Debug Info</div>
+    </div>
+</div>
+
+<script>
+function CheckStatus() {
+    var options = {};
+    options.url = '@Url.Action("GetStatus", "Build")';
+    options.type = "POST";
+    options.dataType = "json";
+    options.contentType = "application/json";
+    options.success = function (data) {
+
+    $("#status").html("<h2>Status: " + data.status + "</h2> ");    
+
+    var $progress = $('#progressDiv');
+
+    if (data.status == 'Idle' || data.status == 'Running') {
+        setTimeout(CheckStatus, 2000);
+    }
+    else {
+
+        if (data.status == 'Completed') {
+            $.get('/build/taskscomplete', function (data) {
+                $progress.replaceWith(data);
+            });
+        }
+        else {
+            $.get('/build/tasksfail', function (data) {
+                $progress.replaceWith(data);
+            });
+        }
+
+        var $buildLog = $('#buildLogDiv');
+        $.get('/build/taskssummary', function (data) {
+            $buildLog.replaceWith(data);
+        });
+    }
+
+    };
+
+    $.ajax(options)
+    }
+</script>
+
