@@ -1,20 +1,4 @@
-﻿$('.build-latest').on('click', function (evt) {
-    evt.preventDefault();
-    evt.stopPropagation();
-
-    $('.build-latest').addClass('disabled');
-
-    var $progressDiv = $('#progressDiv'),
-        url = $(this).data('url');
-
-    $.get(url, function (data) {
-        $progressDiv.replaceWith(data);
-    });
-
-    setTimeout(CheckStatus, 2000);
-});
-
-
+﻿
 function notifyUserOfConnectionProblem() {
     //alert('experiencing some problems with connections');
 }
@@ -52,6 +36,7 @@ $(function () {
 
     //ToDo: disconnect when complete
 
+    
 });
 
 // This optional function html-encodes messages for display in the page.

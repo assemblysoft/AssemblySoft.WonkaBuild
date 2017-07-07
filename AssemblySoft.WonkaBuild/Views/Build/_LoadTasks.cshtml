@@ -1,0 +1,65 @@
+﻿@model IEnumerable<AssemblySoft.WonkaBuild.Models.TaskModel>
+
+@if (Model != null)
+{
+
+<table class="table">
+    <tr>
+        <th>
+            @Html.DisplayNameFor(model => model.Task)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Project)
+        </th>
+        @*<th>
+            @Html.DisplayNameFor(model => model.Version)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Description)
+        </th>
+        <th>
+            @Html.DisplayNameFor(model => model.Definition)
+        </th>*@
+        <th></th>
+    </tr>
+
+@foreach (var item in Model)
+{
+    <tr>
+        <td>
+            @Html.DisplayFor(modelItem => item.Task)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Project)
+        </td>
+        @*<td>
+            @Html.DisplayFor(modelItem => item.Version)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Description)
+        </td>
+        <td>
+            @Html.DisplayFor(modelItem => item.Definition)
+        </td>*@
+        <td>
+
+            @*<a class="taskr btn btn-primary" href="#">click</a>*@
+
+
+            <a data-url='@Url.Action("Run","Build", new { Task=item.Task, Path = item.Path, /* id=item.PrimaryKey */ Project = item.Project })' class="run-task btn btn-primary" href="#">
+                <div><i class="fa fa-play-circle fa-2x"></i></div>
+            </a> |
+                
+            <a data-url='@Url.Action("Info","Build")' class="btn btn-primary" href="#">
+                <div><i class="fa fa-info-circle fa-2x"></i></div>
+            </a>            
+        </td>
+    </tr>
+}
+
+</table>
+}
+else
+{
+    <h3>No Tasks definitions found </h3>
+}
