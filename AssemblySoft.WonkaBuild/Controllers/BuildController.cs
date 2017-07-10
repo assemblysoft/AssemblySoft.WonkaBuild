@@ -40,15 +40,21 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
         #region Task Actions
 
-        public ActionResult LoadTasks()
+        public ActionResult Tasks()
         {
             try
             {
-                AddMessage("Loading Task List...");
+                AddMessage("Loading tasks...");
                 var model = LoadTaskDefinitions();
-
-
-                AddMessage("Done.");
+                if(model != null || !model.Any())
+                {
+                    AddMessage("Unable to find any tasks to load.");
+                }
+                else
+                {
+                    AddMessage("Completed loading tasks.");
+                }
+                
                 return PartialView("_LoadTasks", model);
             }
             catch(Exception e)
