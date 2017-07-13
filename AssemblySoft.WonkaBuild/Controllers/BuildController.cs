@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Configuration;
 using System.IO;
 using System.Threading;
@@ -10,6 +10,7 @@ using AssemblySoft.WonkaBuild.Hubs;
 using AssemblySoft.WonkaBuild.Models;
 using AssemblySoft.IO;
 using System.Collections.Generic;
+using System.Linq;
 
 namespace AssemblySoft.WonkaBuild.Controllers
 {
@@ -40,13 +41,13 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
         #region Task Actions
 
-        public ActionResult Tasks()
+        public ActionResult LoadTasks()
         {
             try
             {
                 AddMessage("Loading tasks...");
-                var model = LoadTaskDefinitions();
-                if(model != null || !model.Any())
+                 var model = LoadTaskDefinitions();
+                if(model == null || !model.Any())
                 {
                     AddMessage("Unable to find any tasks to load.");
                 }
@@ -54,6 +55,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
                 {
                     AddMessage("Completed loading tasks.");
                 }
+
                 
                 return PartialView("_LoadTasks", model);
             }
@@ -102,7 +104,14 @@ namespace AssemblySoft.WonkaBuild.Controllers
                     Thread.Sleep(2000);
                 }
 
-                System.IO.File.Create(Path.Combine(runPath, "completed.dat"));
+                if (e.Status == TaskStatus.Faulted.ToString())
+                {
+                    System.IO.File.Create(Path.Combine(runPath, "error.dat"));
+                }
+                else
+                {
+                    System.IO.File.Create(Path.Combine(runPath, "completed.dat"));
+                }
 
             };
 
@@ -428,7 +437,8 @@ namespace AssemblySoft.WonkaBuild.Controllers
         /// </summary>
         /// <returns></returns>
         private string InitialiseBuildRun()
-        {
+        {           
+
             var tasksDestinationPath = ConfigurationManager.AppSettings["tasksRunnerRootPath"];
 
             //root path for the source task artifacts
