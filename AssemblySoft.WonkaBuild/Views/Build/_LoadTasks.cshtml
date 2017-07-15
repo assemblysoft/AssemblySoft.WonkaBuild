@@ -1,4 +1,4 @@
-﻿@model IEnumerable<AssemblySoft.WonkaBuild.Models.TaskModel>
+@model IEnumerable<AssemblySoft.WonkaBuild.Models.TaskModel>
 
 @if (Model != null)
 {
@@ -32,7 +32,7 @@
 
 @foreach (var item in Model)
 {
-    <tr>
+    <tr class="task-row">
         <td>
             @Html.DisplayFor(modelItem => item.Task)
         </td>
@@ -56,19 +56,20 @@
             
             <a data-url='@Url.Action("Run","Build", new { Task=item.Task, Path = item.Path, /* id=item.PrimaryKey */ Project = item.Project, FullName = item.FullName })' class="run-task btn btn-primary" href="#">
                 <div><i class="fa fa-play-circle fa-2x"></i></div>
-            </a> 
-            
-            <!--               
-            
-                fa-refresh fa-spin
+            </a>          
 
-                
-                -->
-            
-            <a data-url='@Url.Action("Info","Build")' class="btn btn-primary" href="#">
-                <div><i class="fa fa-info-circle fa-2x"></i></div>
-            </a>            
-        </td>
+            <a class="btn btn-primary task-info" href="#" data-toggle="modal" data-target="#taskDefModal">                
+                    <div><i class="fa fa-info-circle fa-2x"></i></div>
+                </a>
+            <div class="info-header" style="display:none">
+                @item.Task Workflow
+            </div>
+            <div class="info-body" style="display:none">                
+                <xmp>
+                    @Html.Raw(item.Definition)
+                </xmp>
+</div>
+</td>
 
         <td>
             <i class="status fa fa-2x"></i>
