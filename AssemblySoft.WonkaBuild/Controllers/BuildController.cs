@@ -11,6 +11,7 @@ using AssemblySoft.WonkaBuild.Models;
 using AssemblySoft.IO;
 using System.Collections.Generic;
 using System.Linq;
+using System.Text;
 
 namespace AssemblySoft.WonkaBuild.Controllers
 {
@@ -418,18 +419,51 @@ namespace AssemblySoft.WonkaBuild.Controllers
                 
                 foreach (var file in files)
                 {
+                    var model = (new TaskModel()
+                    {
+                        Task = Path.GetFileNameWithoutExtension(file.Name),
+                        FullName = file.Name,
+                        Path = dir.FullName,
+                        Project = dir.Name,
+
+                    });
+
+                    var definition = FileClient.ReadAllText(file.FullName);
+
+                    //StringBuilder definitionBuilder = SplitLinesWithHtmlBR(definition);
+
                     tasks.Add(new TaskModel()
                     {
                         Task = Path.GetFileNameWithoutExtension(file.Name),
                         FullName = file.Name,
                         Path = dir.FullName,
                         Project = dir.Name,
+                        //Definition = definitionBuilder.ToString(),
+                        Definition = definition,
+
                     });
+
+
+
+
+
                 }
             }
 
 
             return tasks;
+        }
+
+        private static StringBuilder SplitLinesWithHtmlBR(string definition)
+        {
+            string[] definitionLines = definition.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
+            StringBuilder definitionBuilder = new StringBuilder();
+            foreach (var line in definitionLines)
+            {
+                definitionBuilder.AppendFormat("{0}{1}", line, "<br>");
+            }
+
+            return definitionBuilder;
         }
 
         /// <summary>
