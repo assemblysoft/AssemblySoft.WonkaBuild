@@ -1,4 +1,4 @@
-﻿$(function () {
+$(function () {
 
     //load tasks
     var $taskList = $('#taskList');
@@ -12,10 +12,15 @@
         evt.preventDefault();
         evt.stopPropagation();
 
-        $('.run-task').addClass('disabled');
-        //$(this).closest('.run-task').addClass('disabled');
-        $(this).closest('tr').find('.status').addClass('fa-refresh fa-spin active-task');
+        $('.run-task').addClass('disabled');        
+
+        $tr = $(this).closest('tr');
+        $tr.addClass('active');
+        $tr.find('.status').addClass('fa-refresh fa-spin active-task');
         
+
+        $rows = $('table.table tr');               
+        $rows.not('.active').hide(3000);        
         var $progressDiv = $('#progressDiv');
 
         url = $(this).data('url');                
@@ -34,6 +39,20 @@
         evt.stopPropagation();
 
         $('#messages').empty();
+    });
+
+    //task information
+    $("#tasksDiv").on("click",".task-info",function (evt) {               
+
+        var header = $(this).closest('td').find('.info-header').html();
+        $('.modal-title').html(header);
+
+
+        $('#taskDefinitionModalBody').empty();
+        var markup = $(this).closest('td').find('.info-body').html();
+        $('#taskDefinitionModalBody').html(markup);       
+        
+
     });
     
     
