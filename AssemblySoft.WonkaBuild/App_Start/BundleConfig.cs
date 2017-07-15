@@ -1,4 +1,4 @@
-﻿using System.Web;
+using System.Web;
 using System.Web.Optimization;
 
 namespace AssemblySoft.WonkaBuild
@@ -25,7 +25,8 @@ namespace AssemblySoft.WonkaBuild
 
             bundles.Add(new StyleBundle("~/Content/css").Include(
                       "~/Content/bootstrap.css",
-                      "~/Content/site.css"));
+                      "~/Content/site.css",
+                      "~/Content/task.css"));
         }
     }
 }
