@@ -2,7 +2,6 @@ $(function () {
 
     //load tasks
     var $taskList = $('#taskList');
-
     $.get('/build/loadTasks', function (data) {
         $taskList.replaceWith(data);
     });
@@ -37,7 +36,6 @@ $(function () {
     $(".clearConsole").click(function (evt) {
         evt.preventDefault();
         evt.stopPropagation();
-
         $('#messages').empty();
     });
 
@@ -46,14 +44,22 @@ $(function () {
 
         var header = $(this).closest('td').find('.info-header').html();
         $('.modal-title').html(header);
-
-
+        
         $('#taskDefinitionModalBody').empty();
         var markup = $(this).closest('td').find('.info-body').html();
-        $('#taskDefinitionModalBody').html(markup);       
-        
+        $('#taskDefinitionModalBody').html(markup);              
+    });   
 
+
+    $(".nav").on("click", ".task-history", function (evt) {      
+
+        //load history
+        var $taskHist = $('#taskHistory');
+        $.get('/build/LoadHistory', function (data) {
+            $taskHist.replaceWith(data);
+            $(".nav").off("click", ".task-history"); //remove binding after load
+        });
+        
     });
-    
     
 });
