@@ -4,11 +4,9 @@
 }
 
 .task-list {
-    font-family: Verdana, Geneva, Tahoma, sans-serif;
-    color:cornflowerblue;    
-    /*padding: 10px;*/
+    font-family: Verdana, Geneva, Tahoma, sans-serif;    
     counter-reset: line-number;
-    height: 210px;
+    max-height: 210px;
     overflow-y: auto;
 }
 
@@ -16,3 +14,12 @@
             height: 650px;
             overflow: auto;
         }
+
+
+.completed {
+    color: rgba(100, 199, 4, 0.82);    
+}
+
+.faulted{
+    color:crimson
+}
