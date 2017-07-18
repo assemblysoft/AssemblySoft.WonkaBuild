@@ -11,3 +11,8 @@
     height: 210px;
     overflow-y: auto;
 }
+
+.modal-content {
+            height: 650px;
+            overflow: auto;
+        }
