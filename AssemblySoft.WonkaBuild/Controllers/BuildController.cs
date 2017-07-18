@@ -466,11 +466,11 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
                 foreach (var file in files)
                 {
-                    var status = @"<i class='fa fa-times fa-2x'></i>";
+                    var status = @"<i class='fa fa-times fa-2x faulted'></i>";
                     var buildLog = FileClient.ReadAllText(Path.Combine(dir.FullName, "build.log"));
                     if(System.IO.File.Exists(Path.Combine(dir.FullName,"completed.dat")))
                     {
-                        status = @"<i class='fa fa-check fa-2x'></i>";
+                        status = @"<i class='fa fa-check fa-2x completed'></i>";
                     }
 
 
