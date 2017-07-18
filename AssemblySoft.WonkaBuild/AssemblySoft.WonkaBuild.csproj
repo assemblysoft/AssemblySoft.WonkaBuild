@@ -186,6 +186,7 @@
       <DependentUpon>Global.asax</DependentUpon>
     </Compile>
     <Compile Include="Hubs\BroadcastMessenger.cs" />
+    <Compile Include="Models\TaskHistory.cs" />
     <Compile Include="Models\TaskInformationModel.cs" />
     <Compile Include="Models\TaskModel.cs" />
     <Compile Include="Models\TaskSummaryModel.cs" />
@@ -242,6 +243,7 @@
     <Content Include="Views\Build\_TasksRunning.cshtml" />
     <Content Include="Views\Build\_TasksSummary.cshtml" />
     <Content Include="Views\Build\_LoadTasks.cshtml" />
+    <Content Include="Views\Build\_LoadHistory.cshtml" />
   </ItemGroup>
   <ItemGroup>
     <Folder Include="App_Data\" />
