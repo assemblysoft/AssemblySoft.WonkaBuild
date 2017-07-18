@@ -2,3 +2,12 @@
     width: 80%; /* respsonsive width */
     margin-left: -40%; /* width/2) */
 }
+
+.task-list {
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    color:cornflowerblue;    
+    /*padding: 10px;*/
+    counter-reset: line-number;
+    height: 210px;
+    overflow-y: auto;
+}
