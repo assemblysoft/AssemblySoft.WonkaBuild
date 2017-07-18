@@ -1,4 +1,4 @@
-﻿
+
 function notifyUserOfConnectionProblem() {
     //alert('experiencing some problems with connections');
 }
@@ -24,7 +24,7 @@ $(function () {
     messageStatusHub.client.addModel = function (model) {
 
         // Add the message to the page.
-        $('#messages').append('<li class="line"><strong>' + htmlEncode(model.message) + '</strong>: ' + '</li>');
+        $('#messages').append('<li class="line"><strong>' + htmlEncode(model.message) + '</strong> ' + '</li>');
         $('.console').animate({ scrollTop: $('.console').prop("scrollHeight") }, 10);
     };   
 
