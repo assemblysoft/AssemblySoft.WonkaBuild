@@ -2,22 +2,27 @@
 @{
     ViewData["Title"] = "Build";
 }
-<div id="tasksDiv">
-    <div id="taskList">
-    </div>
-</div>
+
 <div id="divResult">
 </div>
-<ul class="nav nav-tabs">
-    <li class="active"><a data-toggle="tab" href="#build">Latest Build</a></li>
-    <li><a data-toggle="tab" href="#history">History</a></li>
-    <li><a data-toggle="tab" href="#debug">Debug</a></li>
-</ul>
+<div style="margin-top:10px; margin-bottom:10px">
+    <ul class="nav nav-tabs">
+        <li class="active"><a data-toggle="tab" href="#build">Build <i class="fa fa-cogs" aria-hidden="true"></i></a></li>
+        <li><a class="task-history" data-toggle="tab" href="#history">History <i class="fa fa-history" aria-hidden="true"></i></a></li>
+        @*<li><a data-toggle="tab" href="#debug">Debug</a></li>*@
+    </ul>
+</div>
 <div class="tab-content">
     <div id="build" class="tab-pane fade in active">
+
+        <div id="tasksDiv" class="task-list">
+            <div id="taskList">
+            </div>
+        </div>
+
         <!-- Idle, Running, Complete etc.-->
         <div id="status">
-            <h2>Status: Idle</h2>
+            <h4>Status: Idle</h4>
         </div>
         <!-- - X OK-->
         <div id="progressSpinner">
@@ -31,7 +36,7 @@
                         <a data-toggle="collapse" data-parent="#accordion" href="#collapse1">
                             Console
                         </a>
-                        <a style="right:10px;" href="#" class="btn btn-primary clearConsole"><i class="fa fa-eraser" aria-hidden="true"></i></a>
+                        <a href="#" class="btn btn-default clearConsole"><i class="fa fa-eraser" aria-hidden="true"></i></a>
                     </h4>
                 </div>
                 <div id="collapse1" class="panel-collapse collapse in">
@@ -62,11 +67,14 @@
         </div>
     </div>
     <div id="history" class="tab-pane fade">
-        <div>Historic builds</div>
+        <div id="tasksHistoryDiv">
+            <div id="taskHistory">
+            </div>
+        </div>
     </div>
-    <div id="debug" class="tab-pane fade">
+    @*<div id="debug" class="tab-pane fade">
         <div>Debug Info</div>
-    </div>
+    </div>*@
 </div>
 
 <!-- Modal -->
@@ -100,7 +108,7 @@ function CheckStatus() {
     options.contentType = "application/json";
     options.success = function (data) {
 
-    $("#status").html("<h2>Status: " + data.status + "</h2> ");
+    $("#status").html("<h4>Status: " + data.status + "</h2> ");
 
     var $progress = $('#progressDiv');
 
