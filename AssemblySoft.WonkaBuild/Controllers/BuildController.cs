@@ -17,12 +17,17 @@ namespace AssemblySoft.WonkaBuild.Controllers
 {
     public class BuildController : Controller
     {
+        //copy all build version specific definition files to latest build running path from config (tasksDefinitionsRootPath)
+
+
         const string COMPLETED_DATA_FILE = "completed.dat";
         const string ERROR_DATA_FILE = "error.dat";
         const string PROCESSING_DATA_FILE = "processing.dat";
         const string TASKS_FILTER = "*.tasks";
         const string BUILD_LOG_DATA_FILE = "build.log";
-
+        const string RUN_PATH = "runpath";
+        const string TASK_NAME = "taskname";
+        const string FILE_WONKA_LOG = "wonka.log";
 
         public ActionResult Index()
         {
@@ -124,9 +129,10 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
             try
             {
-                runPath = InitialiseBuildRun(taskModel.Path);
-
-                Session["runpath"] = runPath;
+                runPath = InitialiseBuildRun(taskModel.Path,taskModel.Project);
+                
+                Session[RUN_PATH] = runPath;
+                Session[TASK_NAME] = taskModel.Task;
             }
             catch (Exception e)
             {
@@ -229,7 +235,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
             {
                 runPath = InitialiseBuildRun();
 
-                Session["runpath"] = runPath;
+                Session[RUN_PATH] = runPath;
             }
             catch (Exception e)
             {
@@ -317,20 +323,39 @@ namespace AssemblySoft.WonkaBuild.Controllers
         public ActionResult TasksSummary()
         {
             var runPath = GetRunPath();
+            //var taskName = GetTaskName();
             if (!string.IsNullOrEmpty(runPath))
             {
-                var log = FileClient.ReadAllText(Path.Combine(runPath, BUILD_LOG_DATA_FILE));
-                var tasks = FileClient.ReadAllText(Path.Combine(runPath, "build.tasks"));
+                //var log = FileClient.ReadAllText(Path.Combine(runPath, BUILD_LOG_DATA_FILE));
+                //var task = FileClient.ReadAllText(Path.Combine(runPath, taskName));
+
+                StringBuilder summaryBuilder = new StringBuilder();
+
+                var logTxt = FileClient.ReadAllText(Path.Combine(runPath, FILE_WONKA_LOG));
+                if (!string.IsNullOrEmpty(logTxt))
+                {
+                    summaryBuilder.AppendFormat("Wonka Log {0} {1}", Environment.NewLine, logTxt);
+                }
+
+
+                var processingTxt = FileClient.ReadAllText(Path.Combine(runPath, PROCESSING_DATA_FILE));
+                if (!string.IsNullOrEmpty(processingTxt))
+                {
+                    summaryBuilder.AppendFormat("Processing Log {0} {1}", Environment.NewLine, processingTxt);
+                }                
+
+                var errorTxt = FileClient.ReadAllText(Path.Combine(runPath, ERROR_DATA_FILE));
+                if (!string.IsNullOrEmpty(processingTxt))
+                {
+                    summaryBuilder.AppendFormat("Error Log {0} {1}", Environment.NewLine, errorTxt);
+                }
 
 
                 var model = new TaskSummaryModel()
-                {
-                    BuildTasks = tasks,
+                {                    
                     BuildLabel = "build x.x.x.",
-                    BuildTime = "2 minutes",
-                    BuildErrors = "None",
-                    BuildWarnings = "None",
-                    BuildLog = log,
+                    BuildTime = "2 minutes",                    
+                    BuildLog = summaryBuilder.ToString(),
                 };
 
                 return PartialView("_TasksSummary", model);
@@ -419,7 +444,6 @@ namespace AssemblySoft.WonkaBuild.Controllers
         /// <returns></returns>
         private string GetRunPath()
         {
-            const string RUN_PATH = "runpath";
             string runPath = string.Empty;
 
             if (Session[RUN_PATH] != null)
@@ -428,6 +452,19 @@ namespace AssemblySoft.WonkaBuild.Controllers
             }
 
             return runPath;
+        }
+
+        private string GetTaskName()
+        {
+            const string TASK_NAME = "taskname";
+            string taskName = string.Empty;
+
+            if (Session[TASK_NAME] != null)
+            {
+                taskName = Session[TASK_NAME].ToString();
+            }
+
+            return taskName;
         }
 
         /// <summary>
@@ -457,42 +494,47 @@ namespace AssemblySoft.WonkaBuild.Controllers
                 throw new DirectoryNotFoundException("Cannot find the tasks definition directory");
             }
 
+            DirectoryInfo projectInfo = new DirectoryInfo(tasksRunnerRootPath);
+            var projectDirectories = projectInfo.EnumerateDirectories();
             List<TaskHistory> taskHistory = new List<TaskHistory>();
-            DirectoryInfo info = new DirectoryInfo(tasksRunnerRootPath);
-            var directories = info.EnumerateDirectories();
-            foreach (var dir in directories)
+            foreach (var projDir in projectDirectories)
             {
-                var files = dir.GetFiles(TASKS_FILTER);
-
-                foreach (var file in files)
+                DirectoryInfo info = new DirectoryInfo(Path.Combine(tasksRunnerRootPath,projDir.Name));
+                var directories = info.EnumerateDirectories();
+                foreach (var dir in directories)
                 {
-                    var status = @"<i class='fa fa-times fa-2x faulted'></i>";
-                    var buildLog = FileClient.ReadAllText(Path.Combine(dir.FullName, "build.log"));
-                    if(System.IO.File.Exists(Path.Combine(dir.FullName,"completed.dat")))
+                    var files = dir.GetFiles(TASKS_FILTER);
+
+                    foreach (var file in files)
                     {
-                        status = @"<i class='fa fa-check fa-2x completed'></i>";
+                        var status = @"<i class='fa fa-times fa-2x faulted'></i>";
+                        var buildLog = FileClient.ReadAllText(Path.Combine(dir.FullName, "build.log"));
+                        if (System.IO.File.Exists(Path.Combine(dir.FullName, "completed.dat")))
+                        {
+                            status = @"<i class='fa fa-check fa-2x completed'></i>";
+                        }
+
+
+                        taskHistory.Add(
+                        new TaskHistory()
+                        {
+                            Task = new TaskModel()
+                            {
+                                Task = Path.GetFileNameWithoutExtension(file.Name),
+                                FullName = file.Name,
+                                Path = dir.FullName,
+                                Project = dir.Name,
+                            },
+                            Summary = new TaskSummaryModel()
+                            {
+                                BuildLog = string.IsNullOrEmpty(buildLog) ? "N/A" : buildLog,
+                                BuildLabel = "this label",
+                            },
+                            Status = status
+                        });
                     }
-
-
-                    taskHistory.Add(
-                    new TaskHistory()
-                    {
-                        Task = new TaskModel()
-                        {
-                            Task = Path.GetFileNameWithoutExtension(file.Name),
-                            FullName = file.Name,
-                            Path = dir.FullName,
-                            Project = dir.Name,
-                        },
-                        Summary = new TaskSummaryModel()
-                        {
-                            BuildLog = string.IsNullOrEmpty(buildLog) ? "N/A" : buildLog,
-                            BuildLabel = "this label",
-                        },
-                        Status = status
-                    });
                 }
-            }         
+            }
 
             return taskHistory;
         }
@@ -598,12 +640,12 @@ namespace AssemblySoft.WonkaBuild.Controllers
             return runPath;
         }
 
-        private string InitialiseBuildRun(string sourcePath)
+        private string InitialiseBuildRun(string sourcePath,string project)
         {
-            var tasksDestinationPath = ConfigurationManager.AppSettings["tasksRunnerRootPath"];
+            var tasksDestinationPath = Path.Combine(ConfigurationManager.AppSettings["tasksRunnerRootPath"],project);
 
             //root path for the source task artifacts
-            var tasksSourcePath = sourcePath;
+            var tasksSourcePath =  sourcePath;
 
             //create new directory for tasks to run
             if (!Directory.Exists(tasksDestinationPath))
@@ -629,7 +671,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
                 }
             }
 
-            //copy build artifacts                
+            //copy all build version specific definition files to latest build running path
             DirectoryClient.DirectoryCopy(tasksSourcePath, runPath, true);
             return runPath;
         }
