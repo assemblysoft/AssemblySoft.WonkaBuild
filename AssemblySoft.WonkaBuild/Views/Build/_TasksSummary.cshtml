@@ -1,28 +1,21 @@
-﻿@model AssemblySoft.WonkaBuild.Models.TaskSummaryModel
-
+@model AssemblySoft.WonkaBuild.Models.TaskSummaryModel
 
 <div id="progressDiv">
     <i class="fa fa-info" aria-hidden="true"></i>
     <span class="sr-only">Summary details...</span>
-
     @if (Model != null)
-    {        
-        @*<h2>Label: @Model.BuildLabel</h2>*@
-        
-        <h3>Build Time: @Model.BuildTime</h3>
-        
-        @*<h4>Build Errors: @Model.BuildErrors</h4>
-        <h5>Build Warnings: @Model.BuildWarnings</h5>*@
-                
-        <h2>Log:</h2>
+    {
+        <h3>Label:</h3>
+        <p>@Model.BuildLabel</p>
+
+        <h3>Build Time:</h3>
+        <p>@Model.BuildTime</p>
+
+        <h3>Wonka Log:</h3>
         <p>@Model.BuildLog</p>
-        
-        <h2>Tasks</h2>
-        <p>@Model.BuildTasks</p>
     }
     else
     {
         <h2>Unable to load Task Summary</h2>
     }
-
 </div>
