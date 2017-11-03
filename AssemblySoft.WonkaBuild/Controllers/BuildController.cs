@@ -70,7 +70,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
                 }
 
 
-                return PartialView("_LoadHistory", model.OrderByDescending(e=> Number(e.Task.Project))); //order by proj
+                return PartialView("_LoadHistory", model.OrderByDescending(e => Number(e.Task.Project))); //order by proj
             }
             catch (Exception e)
             {
@@ -90,22 +90,58 @@ namespace AssemblySoft.WonkaBuild.Controllers
                 return 0;
         }
 
+        decimal AsDecimalNumber(string str)
+        {
+            decimal result_ignored;
+            if (decimal.TryParse(str, out result_ignored))
+                return result_ignored;
+            else
+                return 0;
+        }
+
         public ActionResult LoadTasks()
         {
             try
             {
                 AddMessage("Loading tasks...");
-                var model = LoadTaskDefinitions();
+                //var model = LoadTaskDefinitions(takeCount);
+                var model = LoadTaskDefinitionsOrderByLatestVersion(-1);
                 if (model == null || !model.Any())
                 {
                     AddMessage("Unable to find any tasks to load.");
                 }
                 else
                 {
-                    AddMessage("Completed loading tasks.");
+                    AddMessage("Completed loading all tasks.");
+                }                
+
+                //determine latest
+                return PartialView("_LoadTasks", model);
+            }
+            catch (Exception e)
+            {
+                HandleException(e);
+            }
+
+            return PartialView("_LoadTasks");
+        }
+
+        public ActionResult LoadTasksByLatestVersion()
+        {
+            try
+            {
+                AddMessage("Loading tasks...");
+                var model = LoadTaskDefinitionsOrderByLatestVersion(1);
+                if (model == null || !model.Any())
+                {
+                    AddMessage("Unable to find any tasks to load.");
+                }
+                else
+                {
+                    AddMessage("Completed loading latest tasks.");
                 }
 
-
+                //determine latest
                 return PartialView("_LoadTasks", model);
             }
             catch (Exception e)
@@ -129,8 +165,8 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
             try
             {
-                runPath = InitialiseBuildRun(taskModel.Path,taskModel.Project);
-                
+                runPath = InitialiseBuildRun(taskModel.Path, taskModel.Project);
+
                 Session[RUN_PATH] = runPath;
                 Session[TASK_NAME] = taskModel.Task;
             }
@@ -326,8 +362,6 @@ namespace AssemblySoft.WonkaBuild.Controllers
             //var taskName = GetTaskName();
             if (!string.IsNullOrEmpty(runPath))
             {
-                //var log = FileClient.ReadAllText(Path.Combine(runPath, BUILD_LOG_DATA_FILE));
-                //var task = FileClient.ReadAllText(Path.Combine(runPath, taskName));
 
                 StringBuilder summaryBuilder = new StringBuilder();
 
@@ -342,7 +376,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
                 if (!string.IsNullOrEmpty(processingTxt))
                 {
                     summaryBuilder.AppendFormat("Processing Log {0} {1}", Environment.NewLine, processingTxt);
-                }                
+                }
 
                 var errorTxt = FileClient.ReadAllText(Path.Combine(runPath, ERROR_DATA_FILE));
                 if (!string.IsNullOrEmpty(processingTxt))
@@ -352,9 +386,9 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
 
                 var model = new TaskSummaryModel()
-                {                    
+                {
                     BuildLabel = "build x.x.x.",
-                    BuildTime = "2 minutes",                    
+                    BuildTime = "2 minutes",
                     BuildLog = summaryBuilder.ToString(),
                 };
 
@@ -417,7 +451,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
             string runPath = GetRunPath();
 
             if (string.IsNullOrEmpty(runPath))
-                return DevOpsTaskStatus.Idle;           
+                return DevOpsTaskStatus.Idle;
 
 
             if (System.IO.File.Exists(Path.Combine(runPath, COMPLETED_DATA_FILE)))
@@ -499,7 +533,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
             List<TaskHistory> taskHistory = new List<TaskHistory>();
             foreach (var projDir in projectDirectories)
             {
-                DirectoryInfo info = new DirectoryInfo(Path.Combine(tasksRunnerRootPath,projDir.Name));
+                DirectoryInfo info = new DirectoryInfo(Path.Combine(tasksRunnerRootPath, projDir.Name));
                 var directories = info.EnumerateDirectories();
                 foreach (var dir in directories)
                 {
@@ -543,18 +577,18 @@ namespace AssemblySoft.WonkaBuild.Controllers
         {
             List<TaskModel> tasks = new List<TaskModel>();
             var tasksDestinationRootPath = ConfigurationManager.AppSettings["tasksDefinitionsRootPath"];
-                        
+
             if (!Directory.Exists(tasksDestinationRootPath))
-            {                
+            {
                 throw new DirectoryNotFoundException("Cannot find the tasks definition directory");
             }
 
             DirectoryInfo info = new DirectoryInfo(tasksDestinationRootPath);
             var directories = info.EnumerateDirectories();
             foreach (var dir in directories)
-            {                
+            {
                 var files = dir.GetFiles(TASKS_FILTER);
-                
+
                 foreach (var file in files)
                 {
                     var model = (new TaskModel()
@@ -587,6 +621,75 @@ namespace AssemblySoft.WonkaBuild.Controllers
             return tasks;
         }
 
+        /// <summary>
+        /// Retrieves collection of Task Definitions, ordered by version, latest first
+        /// </summary>
+        /// <param name="takeCount">default 1 signifies latest, -1 all</param>
+        /// <returns></returns>
+        private IEnumerable<TaskModel> LoadTaskDefinitionsOrderByLatestVersion(int takeCount = 1)
+        {
+            List<TaskModel> tasks = new List<TaskModel>();
+            var tasksDestinationRootPath = ConfigurationManager.AppSettings["tasksDefinitionsRootPath"];
+
+            if (!Directory.Exists(tasksDestinationRootPath))
+            {
+                throw new DirectoryNotFoundException("Cannot find the tasks definition directory");
+            }
+
+            DirectoryInfo groupInfo = new DirectoryInfo(tasksDestinationRootPath);
+            var groupDirectories = groupInfo.EnumerateDirectories();
+            foreach (var groupDir in groupDirectories)
+            {
+                DirectoryInfo projectInfo = new DirectoryInfo(groupDir.FullName);
+                var projectDirectories = projectInfo.EnumerateDirectories();
+                foreach (var projectDir in projectDirectories)
+                {
+                    //Take latest version directory for each project
+                    DirectoryInfo versionInfo = new DirectoryInfo(projectDir.FullName);
+                    IEnumerable<DirectoryInfo> versionDirectories = null;
+                    if (takeCount != -1)
+                        versionDirectories = versionInfo.EnumerateDirectories().OrderByDescending(e => AsVersionNumber(e.Name)).Take(takeCount);                    
+                    else
+                        versionDirectories = versionInfo.EnumerateDirectories().OrderByDescending(e => AsVersionNumber(e.Name));
+
+                    foreach (var taskDir in versionDirectories)
+                    {
+                        DirectoryInfo info = new DirectoryInfo(taskDir.FullName);
+                        var files = info.EnumerateFiles(TASKS_FILTER);
+
+                        foreach (var file in files)
+                        {
+                            var definition = FileClient.ReadAllText(file.FullName);
+
+                            tasks.Add(new TaskModel()
+                            {
+                                Task = Path.GetFileNameWithoutExtension(file.Name),
+                                FullName = file.Name,
+                                Path = info.FullName,
+                                Project = projectDir.Name,
+                                Definition = definition,
+                                Version = info.Name
+
+                            });
+                        }
+
+                    }
+                }
+
+            }
+
+            return tasks;
+        }
+
+        private object AsVersionNumber(string number)
+        {
+            Version result;
+            if (Version.TryParse(number, out result))
+                return result;
+            else
+                return default(Version);
+        }
+
         private static StringBuilder SplitLinesWithHtmlBR(string definition)
         {
             string[] definitionLines = definition.Split(new string[] { "\r\n", "\n" }, StringSplitOptions.None);
@@ -604,7 +707,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
         /// </summary>
         /// <returns></returns>
         private string InitialiseBuildRun()
-        {           
+        {
 
             var tasksDestinationPath = ConfigurationManager.AppSettings["tasksRunnerRootPath"];
 
@@ -640,12 +743,12 @@ namespace AssemblySoft.WonkaBuild.Controllers
             return runPath;
         }
 
-        private string InitialiseBuildRun(string sourcePath,string project)
+        private string InitialiseBuildRun(string sourcePath, string project)
         {
-            var tasksDestinationPath = Path.Combine(ConfigurationManager.AppSettings["tasksRunnerRootPath"],project);
+            var tasksDestinationPath = Path.Combine(ConfigurationManager.AppSettings["tasksRunnerRootPath"], project);
 
             //root path for the source task artifacts
-            var tasksSourcePath =  sourcePath;
+            var tasksSourcePath = sourcePath;
 
             //create new directory for tasks to run
             if (!Directory.Exists(tasksDestinationPath))

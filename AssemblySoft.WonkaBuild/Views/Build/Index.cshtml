@@ -1,15 +1,16 @@
 
 @{
-    ViewData["Title"] = "Build";
+    ViewData["Title"] = "Wonka Tasks";
 }
 
 <div id="divResult">
 </div>
 <div style="margin-top:10px; margin-bottom:10px">
     <ul class="nav nav-tabs">
-        <li class="active"><a data-toggle="tab" href="#build">Build <i class="fa fa-cogs fa-2x" aria-hidden="true"></i></a></li>
+        <li class="active"><a data-toggle="tab" href="#build">Latest Tasks <i class="fa fa-cog fa-2x" aria-hidden="true"></i></a></li>
+        <li><a class="tasks-all" data-toggle="tab" href="#all">All Tasks <i class="fa fa-cogs fa-2x" aria-hidden="true"></i></a></li>
         <li><a class="task-history" data-toggle="tab" href="#history">History <i class="fa fa-history fa-2x" aria-hidden="true"></i></a></li>
-        @*<li><a data-toggle="tab" href="#debug">Debug</a></li>*@
+        <li><a class="task-debug" data-toggle="tab" href="#debug">Debug <i class="fa fa-bug fa-2x" aria-hidden="true"></i></a></li>
     </ul>
 </div>
 <div class="tab-content">
@@ -66,15 +67,24 @@
             </div>
         </div>
     </div>
+
+    <div id="all" class="tab-pane fade">
+        <div id="allTasksDiv">
+            <div id="allTasks">
+            </div>
+        </div>
+    </div>
+
     <div id="history" class="tab-pane fade">
         <div id="tasksHistoryDiv">
             <div id="taskHistory">
             </div>
         </div>
     </div>
-    @*<div id="debug" class="tab-pane fade">
-        <div>Debug Info</div>
-    </div>*@
+   
+    <div id="debug" class="tab-pane fade">
+            <div>Debug Info</div>
+        </div>
 </div>
 
 <!-- Modal -->
@@ -99,6 +109,7 @@
     </div>
 </div>
 <!--end modal-->
+
 <script>
 function CheckStatus() {
     var options = {};
@@ -136,21 +147,17 @@ function CheckStatus() {
                 $('.run-task').removeClass('disabled');
 
             });
-        }        
+        }
 
         $rows = $('table.table tr');
         $rows.removeClass('.active');
-        $rows.show(3000);                
+        $rows.show(3000);
 
         var $buildLog = $('#buildLogDiv');
         $.get('/build/taskssummary', function (data) {
             $buildLog.replaceWith(data);
 
         });
-
-
-        
-
 
     }
     };
