@@ -64,20 +64,22 @@ namespace AssemblySoft.WonkaBuild.Controllers
         public ActionResult LoadHistory()
         {
             try
-            {
-                AddMessage("Loading history...");
+            {             
+                
+                AddMessage(BuildResources.Status_LoadingHistory);
+
                 var model = LoadTaskHistory();
                 if (model == null || !model.Any())
                 {
-                    AddMessage("Unable to find any tasks history to load.");
+                    AddMessage(BuildResources.Error_UnableToFindTaskHistoryToLoad);
                 }
                 else
                 {
-                    AddMessage("Completed loading history.");
+                    AddMessage(BuildResources.Status_CompletedLoadingHistory);
                 }
 
 
-                return PartialView("_LoadHistory", model.OrderByDescending(e => Number(e.Task.Project))); //order by proj
+                return PartialView("_LoadHistory", model.OrderByDescending(e => Number(e.Task.Project))); //order by project
             }
             catch (Exception e)
             {
@@ -87,38 +89,19 @@ namespace AssemblySoft.WonkaBuild.Controllers
             return PartialView("_LoadHistory");
         }
 
-        int Number(string str)
-        {
-            int result_ignored;
-            if (int.TryParse(str, out result_ignored))
-                return result_ignored;
-
-            else
-                return 0;
-        }
-
-        decimal AsDecimalNumber(string str)
-        {
-            decimal result_ignored;
-            if (decimal.TryParse(str, out result_ignored))
-                return result_ignored;
-            else
-                return 0;
-        }
-
         public ActionResult LoadTasks()
         {
             try
             {
-                AddMessage("Loading tasks...");                
+                AddMessage(BuildResources.Status_LoadingTasks);                
                 var model = LoadTaskDefinitionsOrderByLatestVersion(-1);
                 if (model == null || !model.Any())
                 {
-                    AddMessage("Unable to find any tasks to load.");
+                    AddMessage(BuildResources.Error_UnableTofindTasksToLoad);
                 }
                 else
                 {
-                    AddMessage("Completed loading all tasks.");
+                    AddMessage(BuildResources.Status_CompletedLoadingTasks);
                 }
 
                 //determine latest
@@ -135,16 +118,16 @@ namespace AssemblySoft.WonkaBuild.Controllers
         public ActionResult LoadTasksByLatestVersion()
         {
             try
-            {
-                AddMessage("Loading tasks...");
+            {                
+                AddMessage(BuildResources.Status_LoadingTasks);
                 var model = LoadTaskDefinitionsOrderByLatestVersion(1);
                 if (model == null || !model.Any())
                 {
-                    AddMessage("Unable to find any tasks to load.");
+                    AddMessage(BuildResources.Error_UnableTofindTasksToLoad);
                 }
                 else
                 {
-                    AddMessage("Completed loading latest tasks.");
+                    AddMessage(BuildResources.Status_CompletedLoadingTasks);
                 }
 
                 //determine latest
@@ -158,14 +141,12 @@ namespace AssemblySoft.WonkaBuild.Controllers
             return PartialView("_LoadTasks");
         }
 
-
-
         public ActionResult Run(TaskModel taskModel)
         {
             var startTime = DateTime.Now;
             Session.Clear();
 
-            AddMessage("Starting Build");
+            AddMessage(BuildResources.Status_StartingBuild);
             string runPath = string.Empty;
 
             try
@@ -264,99 +245,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
             };
 
             return PartialView("_TasksRunning", model);
-        }
-
-        public ActionResult RunFromSpecificConfigSource()
-        {
-            var startTime = DateTime.Now;
-            Session.Clear();
-
-            AddMessage("Starting Build");
-            string runPath = string.Empty;
-
-            try
-            {
-                runPath = InitialiseBuildRun();
-
-                Session[WebConfigurationManager.AppSettings[SESSION_KEY_RUN_PATH]] = runPath;
-            }
-            catch (Exception e)
-            {
-                HandleException(e);
-                return PartialView("_TasksFail");
-            }
-
-
-            var taskRunner = new TaskRunner(runPath);
-            taskRunner.TaskStatus += (e) =>
-            {
-                AddMessage(e.Status);
-            };
-
-            taskRunner.TasksCompleted += (e) =>
-            {
-                while (Broadcaster.Instance.MessageCount > 1)
-                {
-                    Thread.Sleep(2000);
-                }
-
-                System.IO.File.Create(Path.Combine(runPath, WebConfigurationManager.AppSettings[COMPLETED_DATA_FILE]));
-
-            };
-
-            string tasksPath = string.Empty;
-
-            try
-            {
-                CancellationTokenSource _cts = new CancellationTokenSource();
-                var token = _cts.Token;
-
-                Task t1 = new Task(() =>
-                {
-                    var path = Path.Combine(runPath, WebConfigurationManager.AppSettings[PROCESSING_DATA_FILE]);
-                    System.IO.File.Create(Path.Combine(runPath, WebConfigurationManager.AppSettings[PROCESSING_DATA_FILE]));
-                    tasksPath = Path.Combine(runPath, "build.tasks");
-                    taskRunner.Run(token, Path.Combine(tasksPath));
-
-                });
-
-                Task t2 = t1.ContinueWith((ante) =>
-                {
-                }, TaskScheduler.FromCurrentSynchronizationContext());
-
-                t1.Start();
-            }
-            catch (DevOpsTaskException ex)
-            {
-                HandleException(ex);
-                return PartialView("_TasksFail");
-            }
-            catch (AggregateException ag)
-            {
-                HandleException(ag);
-                return PartialView("_TasksFail");
-            }
-            catch (Exception ex)
-            {
-                HandleException(ex);
-                return PartialView("_TasksFail");
-            }
-            finally
-            {
-                var tasks = taskRunner.GetDevOpsTaskWithState();
-                //could serialize the state back to the tasks file for verification
-                //taskRunner.S.SerializeTasksToFile(tasks, ConfigurationManager.AppSettings["tasksPath"]);
-            }
-
-            var model = new TaskInformationModel()
-            {
-                TasksPath = tasksPath,
-                TasksStartTime = startTime.ToString(),
-
-            };
-
-            return PartialView("_TasksRunning", model);
-        }
+        }        
 
         public ActionResult TasksComplete()
         {
@@ -411,11 +300,6 @@ namespace AssemblySoft.WonkaBuild.Controllers
             return PartialView("_TasksFail");
         }
 
-        #endregion
-
-
-        #region Task Management
-
         /// <summary>
         /// Retrieves the status of the task run
         /// </summary>
@@ -432,6 +316,9 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
             return Json(data);
         }
+
+        #endregion
+        
 
         private string GetDetails(DevOpsTaskStatus d_status)
         {
@@ -525,14 +412,13 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
         }
 
-
         private IEnumerable<TaskHistory> LoadTaskHistory()
         {
             var tasksRunnerRootPath = ConfigurationManager.AppSettings["tasksRunnerRootPath"];
 
             if (!Directory.Exists(tasksRunnerRootPath))
             {
-                throw new DirectoryNotFoundException("Cannot find the tasks definition directory");
+                throw new DirectoryNotFoundException(BuildResources.Error_CannotfindTaskDefinitions);
             }
 
             DirectoryInfo projectInfo = new DirectoryInfo(tasksRunnerRootPath);
@@ -587,7 +473,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
             if (!Directory.Exists(tasksDestinationRootPath))
             {
-                throw new DirectoryNotFoundException("Cannot find the tasks definition directory");
+                throw new DirectoryNotFoundException(BuildResources.Error_CannotfindTaskDefinitions);
             }
 
             DirectoryInfo info = new DirectoryInfo(tasksDestinationRootPath);
@@ -616,7 +502,6 @@ namespace AssemblySoft.WonkaBuild.Controllers
                         Path = dir.FullName,
                         Project = dir.Name,                        
                         Definition = definition,
-
                     });
                 }
             }
@@ -637,7 +522,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
             if (!Directory.Exists(tasksDestinationRootPath))
             {
-                throw new DirectoryNotFoundException("Cannot find the tasks definition directory");
+                throw new DirectoryNotFoundException(BuildResources.Error_CannotfindTaskDefinitions);
             }
 
             DirectoryInfo groupInfo = new DirectoryInfo(tasksDestinationRootPath);
@@ -705,47 +590,7 @@ namespace AssemblySoft.WonkaBuild.Controllers
 
             return definitionBuilder;
         }
-
-        /// <summary>
-        /// Initialises the build
-        /// </summary>
-        /// <returns></returns>
-        private string InitialiseBuildRun()
-        {
-
-            var tasksDestinationPath = ConfigurationManager.AppSettings["tasksRunnerRootPath"];
-
-            //root path for the source task artifacts
-            var tasksSourcePath = ConfigurationManager.AppSettings["tasksSourcePath"];
-
-            //create new directory for tasks to run
-            if (!Directory.Exists(tasksDestinationPath))
-            {
-                Directory.CreateDirectory(tasksDestinationPath);
-            }
-
-            int latestCount = GetNextBuildNumber(tasksDestinationPath);
-
-            var runPath = Path.Combine(tasksDestinationPath, string.Format("{0}", latestCount));
-            Directory.CreateDirectory(runPath);
-
-            //generate basic log to identify task run
-            string path = Path.Combine(runPath, string.Format("{0}", WebConfigurationManager.AppSettings[BUILD_LOG_DATA_FILE]));
-            // This text is added only once to the file.
-            if (!System.IO.File.Exists(path))
-            {
-                // Create a file to write to.
-                using (StreamWriter sw = System.IO.File.CreateText(path))
-                {
-                    sw.WriteLine(string.Format("{0} Ver: {1}", "Build Runner version", "2.1"));
-                    sw.WriteLine(string.Format("{0} {1}", DateTime.UtcNow, runPath));
-                }
-            }
-
-            //copy build artifacts                
-            DirectoryClient.DirectoryCopy(tasksSourcePath, runPath, true);
-            return runPath;
-        }
+        
 
         private string InitialiseBuildRun(string sourcePath, string project)
         {
@@ -830,8 +675,26 @@ namespace AssemblySoft.WonkaBuild.Controllers
             }
         }
 
-        delegate void AddStatusCallback(string text);
+        delegate void AddStatusCallback(string text);              
 
-        #endregion
+
+        int Number(string str)
+        {
+            int result_ignored;
+            if (int.TryParse(str, out result_ignored))
+                return result_ignored;
+
+            else
+                return 0;
+        }
+
+        decimal AsDecimalNumber(string str)
+        {
+            decimal result_ignored;
+            if (decimal.TryParse(str, out result_ignored))
+                return result_ignored;
+            else
+                return 0;
+        }
     }
 }
