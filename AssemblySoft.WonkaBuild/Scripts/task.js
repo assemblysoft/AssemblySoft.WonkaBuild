@@ -2,7 +2,7 @@ $(function () {
 
     //load tasks
     var $taskList = $('#taskList');
-    $.get('/build/loadTasks', function (data) {
+    $.get('/build/LoadTasksByLatestVersion', function (data) {
         $taskList.replaceWith(data);
     });
 
@@ -50,6 +50,16 @@ $(function () {
         $('#taskDefinitionModalBody').html(markup);              
     });   
 
+    $(".nav").on("click", ".tasks-all", function (evt) {
+
+        //load history
+        var $tasksAll = $('#allTasks');
+        $.get('/build/LoadTasks', function (data) {
+            $tasksAll.replaceWith(data);
+            $(".nav").off("click", ".tasks-all"); //remove binding after load
+        });
+
+    });
 
     $(".nav").on("click", ".task-history", function (evt) {      
 
@@ -60,6 +70,6 @@ $(function () {
             $(".nav").off("click", ".task-history"); //remove binding after load
         });
         
-    });
+    });    
     
 });
