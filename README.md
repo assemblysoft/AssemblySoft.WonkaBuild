@@ -1,9 +1,20 @@
 # WonkaBuild
 
-## Web Client for managing the output and history of DevOps projects
+## Web Client for managing DevOps projects
+
+### Goal
+A web client to supplement the console and windows output which enable some simple management of tasks including
+- Multiple prohjects
+- History of passing and failing build runs
+- Logs
+- Live Web View
 
 
 ![Alt text](thumb.png?raw=true "User Interface for Wonka Build Web site")
+
+
+
+
 
 
 ### Task
