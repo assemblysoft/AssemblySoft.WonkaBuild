@@ -12,6 +12,6 @@ A build starts with a definition. A build definition is a collection of tasks th
 
 ### Coded Build Tasks
 For more complex scenarios that require existing or new executable binaries to be run, custom build tasks can be created.
-This enables proprietory tasks to live in your own source code repository and through refelction can be added as part of the overall build. 
+This enables proprietory tasks to live in your own source code repository and strung together as part of the definition via reflection. This makes it a simple process to string together binaries and scripts as part of a managed flow with very little effort.
 
 
