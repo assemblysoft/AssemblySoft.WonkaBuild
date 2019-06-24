@@ -4,10 +4,10 @@
 
 ### Goal
 A web client to supplement the console and windows output which enable some simple management of tasks including
-- Multiple prohjects
-- History of passing and failing build runs
-- Logs
-- Live Web View
+- multiple projects
+- history of passing and failing build runs
+- logs
+- live Web View
 
 
 ![Alt text](thumb.png?raw=true "User Interface for Wonka Build Web site")
