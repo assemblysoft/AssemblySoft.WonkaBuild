@@ -1,8 +1,7 @@
 # WonkaBuild
 
-## Web client for running and managing DevOps tasks
+## Web client for running, viewing and managing DevOps tasks
 
-Wonka build utilises https://github.com/assemblysoft/AssemblySoft.DevOps library for running tasks and the build lifecycle
 
 ![Alt text](thumb.png?raw=true "User Interface for Wonka Build Web site")
 
