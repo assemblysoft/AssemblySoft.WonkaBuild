@@ -1,6 +1,6 @@
 # WonkaBuild
 
-## Web client for running, viewing and managing DevOps tasks
+## Web Client for managing the output and history of DevOps projects
 
 
 ![Alt text](thumb.png?raw=true "User Interface for Wonka Build Web site")
