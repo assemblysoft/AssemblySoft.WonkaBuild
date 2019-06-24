@@ -20,5 +20,8 @@ This enables proprietory tasks to live in your own source code repository and st
 The task runner takes a tasks definition and executes each task either sequentially or in parallel.
 
 *The Task runner project is part of the open source DevOps library, also here on Github* https://github.com/assemblysoft/AssemblySoft.DevOps
- 
 
+
+## License
+
+AssemblySoft.DevOps is distributed under the MIT License.
