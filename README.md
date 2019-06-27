@@ -14,9 +14,6 @@ A web client to supplement the console and windows output which enable some simp
 
 
 
-
-
-
 ### Task
 A task is the single unit that performs something meaningful. It could be to run a script, copy a directory, contact a web service or as simple as outputting a message to the console.
 
@@ -29,6 +26,18 @@ This enables proprietory tasks to live in your own source code repository and st
 
 ### Task Runner
 The task runner takes a tasks definition and executes each task either sequentially or in parallel.
+
+
+## Directory Structure
+The root directory for the build process can be configured via the web.config file under the tasksRunnerRootPath key. The default directory is set as shown.
+
+<add key="tasksRunnerRootPath" value="C:\tmp\build" />
+
+The build process will automatically create a build directory which contains sequentially numbered builds.
+
+Once a build is complete, the release artifacts, along with release packages can be found under
+<ROOT DIRECTORY>\build\<PROJECT NAMe>\<NUMBERED BUILD>\Release
+
 
 *The Task runner project is part of the open source DevOps library, also here on Github* https://github.com/assemblysoft/AssemblySoft.DevOps
 
