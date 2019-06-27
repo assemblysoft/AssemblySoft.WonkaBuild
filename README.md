@@ -7,7 +7,7 @@ A web client to supplement the console and windows output which enable some simp
 - multiple projects
 - history of passing and failing build runs
 - logs
-- live Web View
+- near to live status
 
 
 ![Alt text](thumb.png?raw=true "User Interface for Wonka Build Web site")
@@ -28,7 +28,7 @@ This enables proprietory tasks to live in your own source code repository and st
 The task runner takes a tasks definition and executes each task either sequentially or in parallel.
 
 
-## Directory Structure
+### Directory Structure
 The root directory for the build process can be configured via the web.config file under the tasksRunnerRootPath key. The default directory is set as shown.
 
 <add key="tasksRunnerRootPath" value="C:\tmp\build" />
