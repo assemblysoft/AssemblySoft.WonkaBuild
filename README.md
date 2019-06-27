@@ -2,7 +2,7 @@
 
 ## Web Client for managing DevOps projects
 
-### Goal
+### Features
 A web client to supplement the console and windows output which enable some simple management of tasks including
 - multiple projects
 - history of passing and failing build runs
